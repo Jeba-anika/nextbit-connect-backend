@@ -2,6 +2,8 @@
 // import { Model, ObjectId, Types } from 'mongoose'
 // import { IBook } from '../book/book.interface'
 
+import { UserRole } from "@prisma/client"
+
 // export type IUser = {
 //   _id: ObjectId
 //   email: string
@@ -21,3 +23,9 @@
 //     savedPassword: string
 //   ): Promise<boolean>
 // } & Model<IUser>
+
+export type IUserToken = {
+    email: string,
+    role: UserRole,
+    userId: string
+}

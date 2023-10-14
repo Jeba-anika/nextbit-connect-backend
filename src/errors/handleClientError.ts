@@ -2,11 +2,12 @@ import { Prisma } from '@prisma/client';
 import { IGenericErrorMessage } from '../interfaces/error';
 
 const handleClientError = (error: Prisma.PrismaClientKnownRequestError) => {
+  console.log("from client error", error.message)
   let errors: IGenericErrorMessage[] = [];
   let message = ""
   const statusCode = 400;
 
-  if(error.code === 'P2025'){
+  if(error.code === 'P2025' ){
     message = error?.meta?.cause as string || "Record not found"
     errors = [
       {
@@ -22,6 +23,14 @@ const handleClientError = (error: Prisma.PrismaClientKnownRequestError) => {
         message
       }]
     }
+  }else if(error.code === 'P2002'){
+    message = error?.message || "Unique constraint error"
+    errors = [
+      {
+        path: '',
+        message
+      }
+    ]
   }
   return {
     statusCode,

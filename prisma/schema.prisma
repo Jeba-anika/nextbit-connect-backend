@@ -17,26 +17,27 @@ model User{
   password String
   role UserRole
   contactNo String
-  address String
+  address String @default("")
+  district Districts @default(DHAKA)
 }
 
-// model Category{
-//   id String @id @default(uuid())
-//   title String
-//   books Book[]
-// }
+model Category{
+  id String @id @default(uuid())
+  title String
+  books Service[]
+}
 
-// model Book{
-//   id String @id @default(uuid())
-//   title String
-//   author String
-//   price Float
-//   genre String
-//   publicationDate String
-//   categoryId String
-//   category Category @relation(fields: [categoryId], references: [id])
-//   reviewAndRatings ReviewAndRating[]
-// }
+model Service{
+  id String @id @default(uuid())
+  title String
+  speed String
+  price Float
+  time String
+  talkTime String
+  categoryId String
+  category Category @relation(fields: [categoryId], references: [id])
+  // reviewAndRatings ReviewAndRating[]
+}
 
 // model ReviewAndRating {
 //   id String @id @default(uuid())
@@ -61,6 +62,74 @@ enum UserRole{
   super_admin
   admin
   user
+}
+
+enum Districts {
+    BAGERHAT
+    BANDARBAN
+    BARGUNA
+    BARISAL
+    BHOLA
+    BOGRA
+    BRAHMANBARIA
+    CHANDPUR
+    CHAPAINAWABGANJ
+    CHITTAGONG
+    CHUADANGA
+    COMILLA
+    COXS_BAZAR
+    DHAKA
+    DINAJPUR
+    FARIDPUR
+    FENI
+    GAIBANDHA
+    GAZIPUR
+    GOPALGANJ
+    HABIGANJ
+    JAMALPUR
+    JESSORE
+    JHALOKATI
+    JHENAIDAH
+    JOYPURHAT
+    KHAGRACHARI
+    KHULNA
+    KISHOREGANJ
+    KURIGRAM
+    KUSHTIA
+    LAKSHMIPUR
+    LALMONIRHAT
+    MADARIPUR
+    MAGURA
+    MANIKGANJ
+    MEHERPUR
+    MOULVIBAZAR
+    MUNSHIGANJ
+    MYMENSINGH
+    NAOGAON
+    NARAIL
+    NARAYANGANJ
+    NARSINGDI
+    NATORE
+    NAWABGANJ
+    NETROKONA
+    NILPHAMARI
+    NOAKHALI
+    PABNA
+    PANCHAGARH
+    PATUAKHALI
+    PIROJPUR
+    RAJBARI
+    RAJSHAHI
+    RANGAMATI
+    RANGPUR
+    SATKHIRA
+    SHARIATPUR
+    SHERPUR
+    SIRAJGANJ
+    SUNAMGANJ
+    SYLHET
+    TANGAIL
+    THAKURGAON
 }
 
 // enum OrderStatus{

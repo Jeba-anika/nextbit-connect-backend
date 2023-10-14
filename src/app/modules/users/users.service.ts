@@ -6,17 +6,24 @@ import {
   IGenericLoginResponse,
 } from '../../../interfaces/common'
 import prisma from '../../../shared/prisma'
-import { User } from '@prisma/client'
+import { User, UserRole } from '@prisma/client'
 import { jwtHelpers } from '../../../helpers/jwtHelpers'
-import { Secret } from 'jsonwebtoken'
+import { JwtPayload, Secret } from 'jsonwebtoken'
+import bcrypt from 'bcrypt'
+import { IUserToken } from './users.interface'
 
 const createUser = async (payload: User): Promise<Partial<User>> => {
-  // payload.password = await bcrypt.hash(
-  //   payload.password,
-  //   Number(config.bcrypt_salt_rounds)
-  // )
+  payload.password = await bcrypt.hash(
+    payload.password,
+    Number(config.bcrypt_salt_rounds)
+  )
+  const data = {
+    ...payload,
+    role: UserRole.user,
+  }
+
   const result = await prisma.user.create({
-    data: payload,
+    data,
   })
   // eslint-disable-next-line no-unused-vars
   const { password, ...others } = result
@@ -30,27 +37,31 @@ const userLogin = async (payload: IGenericLoginInfo) => {
       email: userEmail,
     },
   })
+
   if (!isUserExist) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'User does not exist')
   }
 
   if (isUserExist.email) {
-    if (isUserExist.password !== password) {
+    const isPasswordMatched = await bcrypt.compare(
+      password,
+      isUserExist?.password
+    )
+    if (!isPasswordMatched) {
       throw new ApiError(httpStatus.BAD_REQUEST, 'Password is incorrect')
     }
   }
 
   const { id, email, role } = isUserExist
 
-  const iat = Math.floor(Date.now() / 1000)
   const accessToken = jwtHelpers.createToken(
-    { userId: id, role, iat },
+    { userId: id, role, email },
     config.jwt.jwt_secret as Secret,
     config.jwt.jwt_expires_in as string
   )
 
   const refreshToken = jwtHelpers.createToken(
-    { userId: id, role, iat },
+    { userId: id, role, email },
     config.jwt.jwt_refresh_secret as Secret,
     config.jwt.jwt_refresh_expires_in as string
   )
@@ -81,9 +92,9 @@ const userRefreshToken = async (
     throw new ApiError(404, 'User does not exist')
   }
 
-  const { id: userId, role } = isUserExist
+  const { id: userId, role, email } = isUserExist
   const newAccessToken = jwtHelpers.createToken(
-    { userId, role },
+    { userId, role, email },
     config.jwt.jwt_secret as Secret,
     config.jwt.jwt_expires_in as string
   )
@@ -92,7 +103,27 @@ const userRefreshToken = async (
   }
 }
 
-const getAllUsers = async (): Promise<Partial<User>[]> => {
+const getAllUsers = async (userInfo: JwtPayload | null ): Promise<Partial<User>[]> => {
+  const { role } = userInfo as IUserToken
+  if (role === UserRole.admin) {
+    const result = await prisma.user.findMany({
+      where:{
+        NOT: {
+          role: UserRole.super_admin
+        }
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        contactNo: true,
+        address: true,
+        district: true,
+      },
+    })
+    return result
+  }
   const result = await prisma.user.findMany({
     select: {
       id: true,
@@ -101,13 +132,20 @@ const getAllUsers = async (): Promise<Partial<User>[]> => {
       role: true,
       contactNo: true,
       address: true,
-      profileImg: true,
+      district: true,
     },
   })
   return result
+
+  
 }
 
-const getUser = async (id: string): Promise<Partial<User> | null> => {
+const getUser = async (id: string, userId: string, role: string): Promise<Partial<User> | null> => {
+  if(role === UserRole.user){
+    if(id !== userId){
+      throw new ApiError(httpStatus.BAD_REQUEST, "You are not authorized!")
+    }
+  }
   const result = await prisma.user.findUnique({
     where: {
       id,
@@ -119,9 +157,14 @@ const getUser = async (id: string): Promise<Partial<User> | null> => {
       role: true,
       contactNo: true,
       address: true,
-      profileImg: true,
+      district: true
     },
   })
+  if(role === UserRole.admin){
+    if(result?.role === UserRole.super_admin){
+      throw new ApiError(httpStatus.BAD_REQUEST, "You are not authorized!")
+    }
+  }
   return result
 }
 
@@ -146,8 +189,7 @@ const updateUser = async (
       email: true,
       role: true,
       contactNo: true,
-      address: true,
-      profileImg: true,
+      address: true
     },
   })
   return result
@@ -191,5 +233,5 @@ export const UserService = {
   getUser,
   updateUser,
   deleteUser,
-  getProfile
+  getProfile,
 }

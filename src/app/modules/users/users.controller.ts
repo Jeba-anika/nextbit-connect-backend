@@ -6,6 +6,7 @@ import { User } from '@prisma/client'
 import config from '../../../config'
 import { IGenericLoginResponse } from '../../../interfaces/common'
 import httpStatus from 'http-status'
+import { IUserToken } from './users.interface'
 
 const createUser = catchAsync(async (req: Request, res: Response) => {
   const result = await UserService.createUser(req.body)
@@ -20,24 +21,18 @@ const createUser = catchAsync(async (req: Request, res: Response) => {
 const userLogin = catchAsync(async (req: Request, res: Response) => {
   const { ...loginData } = req.body
   const result = await UserService.userLogin(loginData)
-  const { refreshToken,accessToken } = result
+  const { refreshToken,accessToken,email,id } = result
   const cookieOptions = {
     secure: config.env === 'production',
     httpOnly: true,
   }
   res.cookie('refreshToken', refreshToken, cookieOptions)
-  res.status(200).json({
+  sendResponse(res, {
     statusCode: 200,
     success: true,
-    message: "User signin successfully!",
-    token: accessToken
+    message: 'User signin successfully!',
+    data: {accessToken,email,id},
   })
-  // sendResponse(res, {
-  //   statusCode: 200,
-  //   success: true,
-  //   message: 'User signin successfully!',
-  //   token: accessToken,
-  // })
 })
 
 const userRefreshToken = catchAsync(async (req: Request, res: Response) => {
@@ -58,11 +53,11 @@ const userRefreshToken = catchAsync(async (req: Request, res: Response) => {
 
 const getAllUsers = catchAsync(
   async(req:Request, res:Response)=>{
-    const result = await UserService.getAllUsers()
+    const result = await UserService.getAllUsers(req.user)
     sendResponse<Partial<User>[]>(res,{
       statusCode: httpStatus.OK,
       success: true,
-      message: 'All useres retrieved',
+      message: 'All users retrieved',
       data: result
     })
   }
@@ -70,8 +65,8 @@ const getAllUsers = catchAsync(
 
 const getUser = catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id
-
-  const result = await UserService.getUser(id)
+  const {userId, role} = req.user as IUserToken
+  const result = await UserService.getUser(id, userId,role)
 
   sendResponse<Partial<User>>(res, {
     statusCode: 200,

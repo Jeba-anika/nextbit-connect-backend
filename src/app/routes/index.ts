@@ -8,7 +8,6 @@ import { OrdersRouter } from '../modules/orders/orders.routes';
 const router = express.Router();
 
 const moduleRoutes = [
-  // ... routes
   {
     path: "/",
     route: UserRouter
