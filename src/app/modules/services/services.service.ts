@@ -1,26 +1,14 @@
-// import { SortOrder } from 'mongoose'
-// import { paginationHelpers } from '../../../helpers/paginationHelpers'
-// import { IpaginationOptions } from '../../../interfaces/pagination'
-// import { bookSearchableFields } from './book.constants'
-// import { IBook, IBookFilters } from './book.interface'
-// import { Book } from './book.model'
-// import { IGenericResponse } from '../../../interfaces/common'
-// import ApiError from '../../../errors/ApiError'
-// import { JwtPayload } from 'jsonwebtoken'
-// import { User } from '../users/users.model'
-
-import { Book, Prisma } from '@prisma/client'
+import {  Prisma, Service } from '@prisma/client'
 import prisma from '../../../shared/prisma'
 import { IpaginationOptions } from '../../../interfaces/pagination'
 import { paginationHelpers } from '../../../helpers/paginationHelper'
-import { IBookFilterRequest } from './book.interface'
-import { bookSearchableFields } from './book.constants'
+import { IBookFilterRequest } from './services.interface'
+import { bookSearchableFields } from './services.constants'
 
-const createBook = async (
-  data: Book
- 
-): Promise<Book> => {
-  const result = await prisma.book.create({
+const createService= async (
+  data: Service
+): Promise<Service> => {
+  const result = await prisma.service.create({
     data,
     include: {
       category: true,
@@ -197,8 +185,8 @@ const deleteBook = async (id: string) => {
   return result
 }
 
-export const BookService = {
-  createBook,
+export const ServiceProvidedService = {
+  createService,
   getAllBooks,
   getAllBooksByCategory,
   getSingleBook,

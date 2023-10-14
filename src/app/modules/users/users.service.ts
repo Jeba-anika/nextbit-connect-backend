@@ -170,6 +170,8 @@ const getUser = async (id: string, userId: string, role: string): Promise<Partia
 
 const updateUser = async (
   id: string,
+  userId: string,
+  role: string,
   payload: Partial<User>
 ): Promise<Partial<User>> => {
   const isExist = await prisma.user.findUnique({
@@ -177,6 +179,16 @@ const updateUser = async (
   })
   if (!isExist) {
     throw new ApiError(httpStatus.BAD_REQUEST, "User didn't found!")
+  }
+  if(role === UserRole.user){
+    if(userId !== id){
+      throw new ApiError(httpStatus.BAD_REQUEST, "Not Authorized")
+    }
+  }
+  if(role === UserRole.admin){
+    if(isExist.role === UserRole.super_admin){
+      throw new ApiError(httpStatus.BAD_REQUEST, "Not Authorized")
+    }
   }
   const result = await prisma.user.update({
     where: {
@@ -189,7 +201,8 @@ const updateUser = async (
       email: true,
       role: true,
       contactNo: true,
-      address: true
+      address: true,
+      district: true
     },
   })
   return result
@@ -207,7 +220,7 @@ const deleteUser = async (id: string) => {
       role: true,
       contactNo: true,
       address: true,
-      profileImg: true,
+      district: true
     },
   })
   return result

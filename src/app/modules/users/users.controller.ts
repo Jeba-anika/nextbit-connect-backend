@@ -78,8 +78,8 @@ const getUser = catchAsync(async (req: Request, res: Response) => {
 
 const updateUser = catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id
-
-  const result = await UserService.updateUser(id, req.body)
+  const {userId, role} = req.user as IUserToken
+  const result = await UserService.updateUser(id,userId,role, req.body)
 
   sendResponse<Partial<User>>(res, {
     statusCode: 200,
@@ -92,7 +92,6 @@ const updateUser = catchAsync(async (req: Request, res: Response) => {
 
 const deleteUser = catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id
-
   const result = await UserService.deleteUser(id)
 
   sendResponse<Partial<User>>(res, {

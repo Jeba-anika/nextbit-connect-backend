@@ -2,22 +2,22 @@ import { Request, Response } from 'express'
 import catchAsync from '../../../shared/catchAsync'
 import sendResponse from '../../../shared/sendResponse'
 // import { IBook } from './book.interface'
-import { BookService } from './book.service'
-import { Book } from '@prisma/client'
+import { ServiceProvidedService } from './services.service'
+import {  Service } from '@prisma/client'
 import httpStatus from 'http-status'
 import pick from '../../../shared/pick'
-import { bookFilterableFields } from './book.constants'
+import { bookFilterableFields } from './services.constants'
 // import pick from '../../../shared/pick'
 // import { bookFilterableFields } from './book.constants'
 // import { paginationFields } from '../../../constants/pagination'
 
-const createBook = catchAsync(async (req: Request, res: Response) => {
+const createService = catchAsync(async (req: Request, res: Response) => {
   //   const userInfo = req.user
-  const { ...bookData } = req.body
-  const result = await BookService.createBook(bookData)
-  sendResponse<Book>(res, {
+  const { ...serviceData } = req.body
+  const result = await ServiceProvidedService.createService(serviceData)
+  sendResponse<Service>(res, {
     success: true,
-    message: 'Book created successfully',
+    message: 'Service created successfully',
     statusCode: 200,
     data: result,
   })
@@ -141,8 +141,8 @@ const deleteBook = catchAsync(async (req: Request, res: Response) => {
 //   })
 // })
 
-export const BookController = {
-  createBook,
+export const ServiceController = {
+  createService,
   getAllBooks,
   getAllBooksByCategory,
   getSingleBook,

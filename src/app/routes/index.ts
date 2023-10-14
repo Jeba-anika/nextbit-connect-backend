@@ -1,8 +1,7 @@
 import express from 'express';
 import { UserRouter } from '../modules/users/users.routes';
 import { CategoryRoutes } from '../modules/category/controller.routes';
-import { BookRoutes } from '../modules/book/book.routes';
-import { OrdersRouter } from '../modules/orders/orders.routes';
+import { ServicesRoutes } from '../modules/services/services.routes';
 
 
 const router = express.Router();
@@ -19,14 +18,14 @@ const moduleRoutes = [
   }
   ,
   {
-    path: '/books',
-    route: BookRoutes
+    path: '/services',
+    route: ServicesRoutes
   }
-  ,
-  {
-    path: '/orders',
-    route: OrdersRouter
-  }
+  // ,
+  // {
+  //   path: '/orders',
+  //   route: OrdersRouter
+  // }
 ];
 
 moduleRoutes.forEach(route => router.use(route.path, route.route));
