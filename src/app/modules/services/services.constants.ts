@@ -1,10 +1,10 @@
-export const bookFilterableFields = [
+export const serviceFilterableFields = [
   'search',
   'minPrice',
   'maxPrice',
   'title',
   'category',
-  'author',
-  'genre',
+  'speed',
+  'location',
 ]
-export const bookSearchableFields = ['title', 'genre', 'author']
+export const serviceSearchableFields = ['title', 'speed']

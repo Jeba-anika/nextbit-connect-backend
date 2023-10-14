@@ -8,10 +8,10 @@ const router = express.Router()
 
 
 router.post('/create-service',auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN), ServiceController.createService)
-// router.get('/', BookController.getAllBooks)
-// router.get('/:id', BookController.getSingleBook)
-// router.patch('/:id',auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN), BookController.updateBook)
-// router.delete('/:id',auth(ENUM_USER_ROLE.ADMIN,ENUM_USER_ROLE.SUPER_ADMIN), BookController.deleteBook)
-// router.get('/:categoryId/category', BookController.getAllBooksByCategory)
+router.get('/', ServiceController.getAllServices)
+router.get('/:id', ServiceController.getSingleService)
+router.patch('/:id',auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN), ServiceController.updateService)
+router.delete('/:id',auth(ENUM_USER_ROLE.ADMIN,ENUM_USER_ROLE.SUPER_ADMIN), ServiceController.deleteService)
+router.get('/:categoryId/category', ServiceController.getAllServicesByCategory)
 
 export const ServicesRoutes = router

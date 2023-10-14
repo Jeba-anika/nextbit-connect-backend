@@ -34,6 +34,7 @@ model Service{
   price Float
   time String
   talkTime String
+  location Districts
   categoryId String
   category Category @relation(fields: [categoryId], references: [id])
   // reviewAndRatings ReviewAndRating[]

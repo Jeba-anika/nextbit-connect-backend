@@ -2,8 +2,8 @@ import {  Prisma, Service } from '@prisma/client'
 import prisma from '../../../shared/prisma'
 import { IpaginationOptions } from '../../../interfaces/pagination'
 import { paginationHelpers } from '../../../helpers/paginationHelper'
-import { IBookFilterRequest } from './services.interface'
-import { bookSearchableFields } from './services.constants'
+import { IServiceFilterRequest } from './services.interface'
+import {  serviceSearchableFields } from './services.constants'
 
 const createService= async (
   data: Service
@@ -16,18 +16,18 @@ const createService= async (
   })
   return result
 }
-const getAllBooks = async (
+const getAllServices = async (
   options: IpaginationOptions,
-  filters: IBookFilterRequest
+  filters: IServiceFilterRequest
 ) => {
   const { page, skip, size, sortBy, sortOrder } =
     paginationHelpers.calculatePagination(options)
-  const { search, minPrice, maxPrice, category, ...filtersData } = filters
+  const { search, minPrice, maxPrice, category,location, ...filtersData } = filters
   const andConditions = []
 
   if (search) {
     andConditions.push({
-      OR: bookSearchableFields.map(field => ({
+      OR: serviceSearchableFields.map(field => ({
         [field]: {
           contains: search,
           mode: 'insensitive',
@@ -62,11 +62,16 @@ const getAllBooks = async (
       categoryId: category,
     })
   }
+  if (location) {
+    andConditions.push({
+      location: location,
+    })
+  }
 
-  const whereCondition: Prisma.BookWhereInput =
+  const whereCondition: Prisma.ServiceWhereInput =
     andConditions.length > 0 ? { AND: andConditions } : {}
 
-  const result = await prisma.book.findMany({
+  const result = await prisma.service.findMany({
     where: whereCondition,
     take: size,
     skip,
@@ -74,7 +79,7 @@ const getAllBooks = async (
       [sortBy]: sortOrder,
     },
   })
-  const total = await prisma.book.count()
+  const total = await prisma.service.count()
   return {
     meta: {
       page,
@@ -86,10 +91,10 @@ const getAllBooks = async (
   }
 }
 
-const getAllBooksByCategory = async (
+const getAllServicesByCategory = async (
   categoryId: string,
   options: IpaginationOptions,
-  filters: IBookFilterRequest
+  filters: IServiceFilterRequest
 ) => {
   const { page, skip, size, sortBy, sortOrder } =
     paginationHelpers.calculatePagination(options)
@@ -101,7 +106,7 @@ const getAllBooksByCategory = async (
 
   if (search) {
     andConditions.push({
-      OR: bookSearchableFields.map(field => ({
+      OR: serviceSearchableFields.map(field => ({
         [field]: {
           contains: search,
           mode: 'insensitive',
@@ -137,10 +142,10 @@ const getAllBooksByCategory = async (
     })
   }
 
-  const whereCondition: Prisma.BookWhereInput =
+  const whereCondition: Prisma.ServiceWhereInput =
     andConditions.length > 0 ? { AND: andConditions } : {}
 
-  const result = await prisma.book.findMany({
+  const result = await prisma.service.findMany({
     where: whereCondition,
     take: size,
     skip,
@@ -148,7 +153,7 @@ const getAllBooksByCategory = async (
       [sortBy]: sortOrder,
     },
   })
-  const total = await prisma.book.count()
+  const total = await prisma.service.count()
   return {
     meta: {
       page,
@@ -160,16 +165,16 @@ const getAllBooksByCategory = async (
   }
 }
 
-const getSingleBook = async (id: string): Promise<Book | null> => {
-  const result = await prisma.book.findUnique({ where: { id } })
+const getSingleService = async (id: string): Promise<Service | null> => {
+  const result = await prisma.service.findUnique({ where: { id } })
   return result
 }
 
-const updateBook = async (
+const updateService = async (
   id: string,
-  updatedData: Partial<Book>
-): Promise<Book | null> => {
-  const result = await prisma.book.update({
+  updatedData: Partial<Service>
+): Promise<Service | null> => {
+  const result = await prisma.service.update({
     where: {
       id,
     },
@@ -178,18 +183,18 @@ const updateBook = async (
   return result
 }
 
-const deleteBook = async (id: string) => {
-  const result = await prisma.book.delete({
+const deleteService = async (id: string) => {
+  const result = await prisma.service.delete({
     where: { id },
   })
   return result
 }
 
-export const ServiceProvidedService = {
+export const ServicesProvidedService = {
   createService,
-  getAllBooks,
-  getAllBooksByCategory,
-  getSingleBook,
-  updateBook,
-  deleteBook,
+  getAllServices,
+  getAllServicesByCategory,
+  getSingleService,
+  updateService,
+  deleteService,
 }

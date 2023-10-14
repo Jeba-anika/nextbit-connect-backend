@@ -2,11 +2,11 @@ import { Request, Response } from 'express'
 import catchAsync from '../../../shared/catchAsync'
 import sendResponse from '../../../shared/sendResponse'
 // import { IBook } from './book.interface'
-import { ServiceProvidedService } from './services.service'
+import {  ServicesProvidedService } from './services.service'
 import {  Service } from '@prisma/client'
 import httpStatus from 'http-status'
 import pick from '../../../shared/pick'
-import { bookFilterableFields } from './services.constants'
+import {  serviceFilterableFields } from './services.constants'
 // import pick from '../../../shared/pick'
 // import { bookFilterableFields } from './book.constants'
 // import { paginationFields } from '../../../constants/pagination'
@@ -14,7 +14,7 @@ import { bookFilterableFields } from './services.constants'
 const createService = catchAsync(async (req: Request, res: Response) => {
   //   const userInfo = req.user
   const { ...serviceData } = req.body
-  const result = await ServiceProvidedService.createService(serviceData)
+  const result = await ServicesProvidedService.createService(serviceData)
   sendResponse<Service>(res, {
     success: true,
     message: 'Service created successfully',
@@ -23,23 +23,23 @@ const createService = catchAsync(async (req: Request, res: Response) => {
   })
 })
 
-const getAllBooks = catchAsync(async (req: Request, res: Response) => {
+const getAllServices = catchAsync(async (req: Request, res: Response) => {
   const options = pick(req.query, ['size', 'page', 'sortBy', 'sortOrder'])
-  const filters = pick(req.query, bookFilterableFields)
-  const result = await BookService.getAllBooks(options, filters)
+  const filters = pick(req.query, serviceFilterableFields)
+  const result = await ServicesProvidedService.getAllServices(options, filters)
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'Books fetched  successfully',
+    message: 'Services fetched  successfully',
     data: result,
   })
 })
 
-const getAllBooksByCategory = catchAsync(
+const getAllServicesByCategory = catchAsync(
   async (req: Request, res: Response) => {
     const options = pick(req.query, ['size', 'page', 'sortBy', 'sortOrder'])
-    const filters = pick(req.query, bookFilterableFields)
-    const result = await BookService.getAllBooksByCategory(
+    const filters = pick(req.query, serviceFilterableFields)
+    const result = await ServicesProvidedService.getAllServicesByCategory(
       req.params.categoryId,
       options,
       filters
@@ -47,43 +47,42 @@ const getAllBooksByCategory = catchAsync(
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: 'Books with associated category data fetched successfully',
+      message: 'Services with associated category data fetched successfully',
       data: result,
     })
   }
 )
 
-const getSingleBook = catchAsync(async (req: Request, res: Response) => {
+const getSingleService= catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id
-  const result = await BookService.getSingleBook(id)
-  sendResponse<Book>(res, {
+  const result = await ServicesProvidedService.getSingleService(id)
+  sendResponse<Service>(res, {
     statusCode: 200,
     success: true,
-    message: 'Book fetched successfully',
+    message: 'Service fetched successfully',
     data: result,
   })
 })
 
-const updateBook = catchAsync(async (req: Request, res: Response) => {
+const updateService = catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id
-
-  const updatedBook = req.body
-  const result = await BookService.updateBook(id, updatedBook)
-  sendResponse<Book>(res, {
+  const updatedService = req.body
+  const result = await ServicesProvidedService.updateService(id, updatedService)
+  sendResponse<Service>(res, {
     statusCode: 200,
     success: true,
-    message: 'Book edited successfully',
+    message: 'Service edited successfully',
     data: result,
   })
 })
 
-const deleteBook = catchAsync(async (req: Request, res: Response) => {
+const deleteService = catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id
-  const result = await BookService.deleteBook(id)
-  sendResponse<Book>(res, {
+  const result = await ServicesProvidedService.deleteService(id)
+  sendResponse<Service>(res, {
     statusCode: 200,
     success: true,
-    message: 'Book deleted successfully',
+    message: 'Service deleted successfully',
     data: result,
   })
 })
@@ -143,11 +142,11 @@ const deleteBook = catchAsync(async (req: Request, res: Response) => {
 
 export const ServiceController = {
   createService,
-  getAllBooks,
-  getAllBooksByCategory,
-  getSingleBook,
-  updateBook,
-  deleteBook,
+  getAllServices,
+  getAllServicesByCategory,
+  getSingleService,
+  updateService,
+  deleteService,
   //   addToWishlist,
   //   addToCurrentlyReading,
   //   addToPlanToReadSoon,
