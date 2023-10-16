@@ -1,4 +1,4 @@
-import { Prisma, ReviewAndRating, Service } from '@prisma/client'
+import { Prisma, ReviewAndRating, Service, UserRole } from '@prisma/client'
 import prisma from '../../../shared/prisma'
 import { IpaginationOptions } from '../../../interfaces/pagination'
 import { paginationHelpers } from '../../../helpers/paginationHelper'
@@ -191,11 +191,11 @@ const deleteService = async (id: string) => {
 const giveReviewRating = async (payload: ReviewAndRating) => {
   let result = {}
   await prisma.$transaction(async transactionClient => {
-     result = await transactionClient.reviewAndRating.create({
+    result = await transactionClient.reviewAndRating.create({
       data: payload,
-      include:{
-        service: true
-      }
+      include: {
+        service: true,
+      },
     })
     const avgRating = await transactionClient.reviewAndRating.aggregate({
       _avg: {
@@ -206,23 +206,40 @@ const giveReviewRating = async (payload: ReviewAndRating) => {
       },
     })
     const updatedData = await transactionClient.service.update({
-      where:{
-        id: result?.serviceId
+      where: {
+        id: result?.serviceId,
       },
       data: {
-        rating: Number(avgRating._avg.rating?.toFixed(2))
-      }
+        rating: Number(avgRating._avg.rating?.toFixed(2)),
+      },
     })
     console.log(updatedData, result)
-   return result
+    return result
   })
   return result
 }
 
-const getAllReviewRatings = async()=>{
-  const result = await prisma.reviewAndRating.findMany({})
-  return result 
+const getAllReviewRatings = async (role: string, userId: string) => {
+  if (role === UserRole.admin || role === UserRole.super_admin) {
+    const result = await prisma.reviewAndRating.findMany({})
+    return result
+  }
+  const result = await prisma.reviewAndRating.findMany({
+    where: {
+      userId
+    }
+  })
+  return result
 }
+const getAllReviewRatingsForSingleService = async (serviceId: string) => {
+  const result = await prisma.reviewAndRating.findMany({
+    where: {
+      serviceId,
+    },
+  })
+  return result
+}
+
 
 export const ServicesProvidedService = {
   createService,
@@ -232,5 +249,7 @@ export const ServicesProvidedService = {
   updateService,
   deleteService,
   giveReviewRating,
-  getAllReviewRatings
+  getAllReviewRatings,
+  getAllReviewRatingsForSingleService,
+  
 }

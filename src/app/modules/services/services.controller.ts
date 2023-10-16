@@ -97,7 +97,8 @@ const giveReviewRating = catchAsync(async (req: Request, res: Response) => {
   })
 })
 const getAllReviewRatings = catchAsync(async (req: Request, res: Response) => {
-  const result = await ServicesProvidedService.getAllReviewRatings()
+  const {role, userId} = req.user as IUserToken
+  const result = await ServicesProvidedService.getAllReviewRatings(role, userId)
   sendResponse<ReviewAndRating[]>(res, {
     statusCode: 200,
     success: true,
