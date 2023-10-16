@@ -22,6 +22,12 @@ const handleClientError = (error: Prisma.PrismaClientKnownRequestError) => {
         path: '',
         message
       }]
+    }else{
+      message = error.message
+      errors = [{
+        path: '',
+        message
+      }]
     }
   }else if(error.code === 'P2002'){
     message = error?.message || "Unique constraint error"

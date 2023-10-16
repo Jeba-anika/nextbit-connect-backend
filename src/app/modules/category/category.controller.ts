@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import catchAsync from "../../../shared/catchAsync";
-import { CategoryService } from "./ccategory.services";
+import { CategoryService } from "./category.services";
 import sendResponse from "../../../shared/sendResponse";
 import httpStatus from "http-status";
 import { Category } from "@prisma/client";

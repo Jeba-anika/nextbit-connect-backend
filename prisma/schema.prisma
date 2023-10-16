@@ -10,133 +10,148 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User{
-  id String @id @default(uuid())
-  name String
-  email String @unique
-  password String
-  role UserRole
-  contactNo String
-  address String @default("")
-  district Districts @default(DHAKA)
+model User {
+  id               String            @id @default(uuid())
+  name             String
+  email            String            @unique
+  password         String
+  role             UserRole
+  contactNo        String
+  address          String?
+  district         Districts?
+  orders           Order[]
+  createdAt        DateTime          @default(now())
+  reviewAndRatings ReviewAndRating[]
 }
 
-model Category{
-  id String @id @default(uuid())
-  title String
-  books Service[]
+model Category {
+  id        String    @id @default(uuid())
+  title     String
+  services  Service[]
+  createdAt DateTime  @default(now())
 }
 
-model Service{
-  id String @id @default(uuid())
-  title String
-  speed String
-  price Float
-  time String
-  talkTime String
-  location Districts
-  categoryId String
-  category Category @relation(fields: [categoryId], references: [id])
-  // reviewAndRatings ReviewAndRating[]
+model Service {
+  id               String            @id @default(uuid())
+  title            String
+  speed            String
+  price            Float
+  time             String
+  talkTime         String
+  location         Districts
+  description      String?
+  availability     Boolean           @default(true)
+  createdAt        DateTime          @default(now())
+  rating           Float             @default(0)
+  categoryId       String
+  category         Category          @relation(fields: [categoryId], references: [id])
+  orders           Order[]
+  reviewAndRatings ReviewAndRating[]
 }
 
-// model ReviewAndRating {
-//   id String @id @default(uuid())
-//   review String
-//   rating Int
-//   userId String
-//   bookId String
-//   user User @relation(fields: [userId], references: [id])
-//   book Book @relation(fields: [bookId], references: [id])
-// }
+model ReviewAndRating {
+  id        String  @id @default(uuid())
+  review    String
+  rating    Float
+  userId    String
+  serviceId String
+  user      User    @relation(fields: [userId], references: [id])
+  service   Service @relation(fields: [serviceId], references: [id])
+}
 
-// model Order {
-//   id String @id @default(uuid())
-//   userId String
-//   user User @relation(fields: [userId], references: [id])
-//   status OrderStatus? @default(pending)
-//   createdAt DateTime @default(now())
-//   orderedBooks Json[]
-// }
+model Order {
+  id            String       @id @default(uuid())
+  address       String
+  district      Districts    @default(DHAKA)
+  contactNo     String
+  email         String
+  userId        String
+  user          User         @relation(fields: [userId], references: [id])
+  status        OrderStatus? @default(PENDING)
+  createdAt     DateTime     @default(now())
+  isCancellable Boolean      @default(true)
+  serviceId     String
+  service       Service      @relation(fields: [serviceId], references: [id])
+}
 
-enum UserRole{
+enum UserRole {
   super_admin
   admin
   user
 }
 
 enum Districts {
-    BAGERHAT
-    BANDARBAN
-    BARGUNA
-    BARISAL
-    BHOLA
-    BOGRA
-    BRAHMANBARIA
-    CHANDPUR
-    CHAPAINAWABGANJ
-    CHITTAGONG
-    CHUADANGA
-    COMILLA
-    COXS_BAZAR
-    DHAKA
-    DINAJPUR
-    FARIDPUR
-    FENI
-    GAIBANDHA
-    GAZIPUR
-    GOPALGANJ
-    HABIGANJ
-    JAMALPUR
-    JESSORE
-    JHALOKATI
-    JHENAIDAH
-    JOYPURHAT
-    KHAGRACHARI
-    KHULNA
-    KISHOREGANJ
-    KURIGRAM
-    KUSHTIA
-    LAKSHMIPUR
-    LALMONIRHAT
-    MADARIPUR
-    MAGURA
-    MANIKGANJ
-    MEHERPUR
-    MOULVIBAZAR
-    MUNSHIGANJ
-    MYMENSINGH
-    NAOGAON
-    NARAIL
-    NARAYANGANJ
-    NARSINGDI
-    NATORE
-    NAWABGANJ
-    NETROKONA
-    NILPHAMARI
-    NOAKHALI
-    PABNA
-    PANCHAGARH
-    PATUAKHALI
-    PIROJPUR
-    RAJBARI
-    RAJSHAHI
-    RANGAMATI
-    RANGPUR
-    SATKHIRA
-    SHARIATPUR
-    SHERPUR
-    SIRAJGANJ
-    SUNAMGANJ
-    SYLHET
-    TANGAIL
-    THAKURGAON
+  BAGERHAT
+  BANDARBAN
+  BARGUNA
+  BARISAL
+  BHOLA
+  BOGRA
+  BRAHMANBARIA
+  CHANDPUR
+  CHAPAINAWABGANJ
+  CHITTAGONG
+  CHUADANGA
+  COMILLA
+  COXS_BAZAR
+  DHAKA
+  DINAJPUR
+  FARIDPUR
+  FENI
+  GAIBANDHA
+  GAZIPUR
+  GOPALGANJ
+  HABIGANJ
+  JAMALPUR
+  JESSORE
+  JHALOKATI
+  JHENAIDAH
+  JOYPURHAT
+  KHAGRACHARI
+  KHULNA
+  KISHOREGANJ
+  KURIGRAM
+  KUSHTIA
+  LAKSHMIPUR
+  LALMONIRHAT
+  MADARIPUR
+  MAGURA
+  MANIKGANJ
+  MEHERPUR
+  MOULVIBAZAR
+  MUNSHIGANJ
+  MYMENSINGH
+  NAOGAON
+  NARAIL
+  NARAYANGANJ
+  NARSINGDI
+  NATORE
+  NAWABGANJ
+  NETROKONA
+  NILPHAMARI
+  NOAKHALI
+  PABNA
+  PANCHAGARH
+  PATUAKHALI
+  PIROJPUR
+  RAJBARI
+  RAJSHAHI
+  RANGAMATI
+  RANGPUR
+  SATKHIRA
+  SHARIATPUR
+  SHERPUR
+  SIRAJGANJ
+  SUNAMGANJ
+  SYLHET
+  TANGAIL
+  THAKURGAON
 }
 
-// enum OrderStatus{
-//   pending
-//   shipped
-//   delivered
-// }
-
-
+enum OrderStatus {
+  PENDING
+  PLACED
+  PROCESSING
+  COMPLETED
+  CANCELLED
+}

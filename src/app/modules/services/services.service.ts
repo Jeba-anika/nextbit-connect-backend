@@ -1,13 +1,11 @@
-import {  Prisma, Service } from '@prisma/client'
+import { Prisma, ReviewAndRating, Service } from '@prisma/client'
 import prisma from '../../../shared/prisma'
 import { IpaginationOptions } from '../../../interfaces/pagination'
 import { paginationHelpers } from '../../../helpers/paginationHelper'
 import { IServiceFilterRequest } from './services.interface'
-import {  serviceSearchableFields } from './services.constants'
+import { serviceSearchableFields } from './services.constants'
 
-const createService= async (
-  data: Service
-): Promise<Service> => {
+const createService = async (data: Service): Promise<Service> => {
   const result = await prisma.service.create({
     data,
     include: {
@@ -22,7 +20,8 @@ const getAllServices = async (
 ) => {
   const { page, skip, size, sortBy, sortOrder } =
     paginationHelpers.calculatePagination(options)
-  const { search, minPrice, maxPrice, category,location, ...filtersData } = filters
+  const { search, minPrice, maxPrice, category, location, ...filtersData } =
+    filters
   const andConditions = []
 
   if (search) {
@@ -189,6 +188,41 @@ const deleteService = async (id: string) => {
   })
   return result
 }
+const giveReviewRating = async (payload: ReviewAndRating) => {
+  let result = {}
+  await prisma.$transaction(async transactionClient => {
+     result = await transactionClient.reviewAndRating.create({
+      data: payload,
+      include:{
+        service: true
+      }
+    })
+    const avgRating = await transactionClient.reviewAndRating.aggregate({
+      _avg: {
+        rating: true,
+      },
+      where: {
+        serviceId: result?.serviceId,
+      },
+    })
+    const updatedData = await transactionClient.service.update({
+      where:{
+        id: result?.serviceId
+      },
+      data: {
+        rating: Number(avgRating._avg.rating?.toFixed(2))
+      }
+    })
+    console.log(updatedData, result)
+   return result
+  })
+  return result
+}
+
+const getAllReviewRatings = async()=>{
+  const result = await prisma.reviewAndRating.findMany({})
+  return result 
+}
 
 export const ServicesProvidedService = {
   createService,
@@ -197,4 +231,6 @@ export const ServicesProvidedService = {
   getSingleService,
   updateService,
   deleteService,
+  giveReviewRating,
+  getAllReviewRatings
 }

@@ -8,6 +8,8 @@ const router = express.Router()
 
 
 router.post('/create-service',auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN), ServiceController.createService)
+router.post('/review-rating',auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.USER), ServiceController.giveReviewRating)
+router.get('/review-rating',auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN), ServiceController.getAllReviewRatings)
 router.get('/', ServiceController.getAllServices)
 router.get('/:id', ServiceController.getSingleService)
 router.patch('/:id',auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN), ServiceController.updateService)

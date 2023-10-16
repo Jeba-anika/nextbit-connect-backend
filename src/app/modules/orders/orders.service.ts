@@ -1,26 +1,27 @@
-import { Order } from '@prisma/client'
 import prisma from '../../../shared/prisma'
 import ApiError from '../../../errors/ApiError'
 import httpStatus from 'http-status'
+import { Order, UserRole } from '@prisma/client';
+
 
 const createOrder = async (
-  payload: { bookId: string; quantity: number }[],
+  payload: Order,
   userId: string
 ) => {
   const result = await prisma.order.create({
     data: {
-      userId,
-      orderedBooks: payload,
-    },
+      ...payload,
+      userId
+    }
   })
   return result
 }
 
 const getAllOrders = async (userId: string, role: string): Promise<Order[]> => {
   let result: Order[] = []
-  if (role === 'admin') {
+  if (role === UserRole.admin || role === UserRole.super_admin) {
     result = await prisma.order.findMany({})
-  } else if (role === 'customer') {
+  } else if (role === UserRole.user) {
     result = await prisma.order.findMany({
       where: {
         userId,
@@ -43,7 +44,7 @@ const getSingleOrder = async (
   if (!result) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Order does not exist!')
   }
-  if (role === 'customer') {
+  if (role === UserRole.user) {
     if (result?.userId !== userId) {
       throw new ApiError(httpStatus.BAD_REQUEST, 'Unauthorized access')
     }

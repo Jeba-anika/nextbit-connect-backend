@@ -3,10 +3,11 @@ import catchAsync from '../../../shared/catchAsync'
 import sendResponse from '../../../shared/sendResponse'
 // import { IBook } from './book.interface'
 import {  ServicesProvidedService } from './services.service'
-import {  Service } from '@prisma/client'
+import {  ReviewAndRating, Service } from '@prisma/client'
 import httpStatus from 'http-status'
 import pick from '../../../shared/pick'
 import {  serviceFilterableFields } from './services.constants'
+import { IUserToken } from '../users/users.interface'
 // import pick from '../../../shared/pick'
 // import { bookFilterableFields } from './book.constants'
 // import { paginationFields } from '../../../constants/pagination'
@@ -86,6 +87,24 @@ const deleteService = catchAsync(async (req: Request, res: Response) => {
     data: result,
   })
 })
+const giveReviewRating = catchAsync(async (req: Request, res: Response) => {
+  const result = await ServicesProvidedService.giveReviewRating( req.body)
+  sendResponse<ReviewAndRating | {}>(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Review and rating submitted!',
+    data: result,
+  })
+})
+const getAllReviewRatings = catchAsync(async (req: Request, res: Response) => {
+  const result = await ServicesProvidedService.getAllReviewRatings()
+  sendResponse<ReviewAndRating[]>(res, {
+    statusCode: 200,
+    success: true,
+    message: 'All review & ratings fetched!',
+    data: result,
+  })
+})
 
 // const addToWishlist = catchAsync(async (req: Request, res: Response) => {
 //   const id = req.params.id
@@ -147,6 +166,8 @@ export const ServiceController = {
   getSingleService,
   updateService,
   deleteService,
+  giveReviewRating,
+  getAllReviewRatings
   //   addToWishlist,
   //   addToCurrentlyReading,
   //   addToPlanToReadSoon,

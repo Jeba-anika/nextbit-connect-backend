@@ -7,7 +7,7 @@ import httpStatus from "http-status";
 const createOrder= catchAsync(
     async(req: Request, res: Response)=>{
         const userId = req.user?.userId
-        const result = await OrdersService.createOrder(req.body?.orderedBooks, userId)
+        const result = await OrdersService.createOrder(req.body, userId)
         sendResponse(res,{
             statusCode: httpStatus.OK,
             success:true,
