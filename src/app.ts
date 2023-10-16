@@ -7,8 +7,14 @@ import httpStatus from 'http-status'
 import router from './app/routes'
 
 const app: Application = express()
+const corsOptions = {
+  origin: 'http://localhost:3000', // Replace with your frontend URL
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  credentials: true,
+  optionsSuccessStatus: 204, // Some legacy browsers (IE11, various SmartTVs) choke on 204
+}
 
-app.use(cors())
+app.use(cors(corsOptions))
 app.use(cookieParser())
 
 app.use(express.json())

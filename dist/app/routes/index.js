@@ -6,11 +6,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const users_routes_1 = require("../modules/users/users.routes");
 const controller_routes_1 = require("../modules/category/controller.routes");
-const book_routes_1 = require("../modules/book/book.routes");
+const services_routes_1 = require("../modules/services/services.routes");
 const orders_routes_1 = require("../modules/orders/orders.routes");
 const router = express_1.default.Router();
 const moduleRoutes = [
-    // ... routes
     {
         path: "/",
         route: users_routes_1.UserRouter
@@ -20,8 +19,8 @@ const moduleRoutes = [
         route: controller_routes_1.CategoryRoutes
     },
     {
-        path: '/books',
-        route: book_routes_1.BookRoutes
+        path: '/services',
+        route: services_routes_1.ServicesRoutes
     },
     {
         path: '/orders',

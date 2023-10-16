@@ -41,7 +41,7 @@ const createUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, voi
 const userLogin = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const loginData = __rest(req.body, []);
     const result = yield users_service_1.UserService.userLogin(loginData);
-    const { refreshToken, accessToken } = result;
+    const { refreshToken, accessToken, email, id } = result;
     const cookieOptions = {
         secure: config_1.default.env === 'production',
         httpOnly: true,
@@ -51,7 +51,7 @@ const userLogin = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void
         statusCode: 200,
         success: true,
         message: 'User signin successfully!',
-        data: { token: accessToken },
+        data: { accessToken, email, id },
     });
 }));
 const userRefreshToken = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -70,17 +70,18 @@ const userRefreshToken = (0, catchAsync_1.default)((req, res) => __awaiter(void 
     });
 }));
 const getAllUsers = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield users_service_1.UserService.getAllUsers();
+    const result = yield users_service_1.UserService.getAllUsers(req.user);
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.OK,
         success: true,
-        message: 'All useres retrieved',
+        message: 'All users retrieved',
         data: result
     });
 }));
 const getUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const id = req.params.id;
-    const result = yield users_service_1.UserService.getUser(id);
+    const { userId, role } = req.user;
+    const result = yield users_service_1.UserService.getUser(id, userId, role);
     (0, sendResponse_1.default)(res, {
         statusCode: 200,
         success: true,
@@ -90,7 +91,8 @@ const getUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0
 }));
 const updateUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const id = req.params.id;
-    const result = yield users_service_1.UserService.updateUser(id, req.body);
+    const { userId, role } = req.user;
+    const result = yield users_service_1.UserService.updateUser(id, userId, role, req.body);
     (0, sendResponse_1.default)(res, {
         statusCode: 200,
         success: true,

@@ -18,9 +18,9 @@ const orders_service_1 = require("./orders.service");
 const sendResponse_1 = __importDefault(require("../../../shared/sendResponse"));
 const http_status_1 = __importDefault(require("http-status"));
 const createOrder = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b;
+    var _a;
     const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.userId;
-    const result = yield orders_service_1.OrdersService.createOrder((_b = req.body) === null || _b === void 0 ? void 0 : _b.orderedBooks, userId);
+    const result = yield orders_service_1.OrdersService.createOrder(req.body, userId);
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.OK,
         success: true,
@@ -29,8 +29,8 @@ const createOrder = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, vo
     });
 }));
 const getAllOrders = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _c, _d;
-    const result = yield orders_service_1.OrdersService.getAllOrders((_c = req.user) === null || _c === void 0 ? void 0 : _c.userId, (_d = req.user) === null || _d === void 0 ? void 0 : _d.role);
+    var _b, _c;
+    const result = yield orders_service_1.OrdersService.getAllOrders((_b = req.user) === null || _b === void 0 ? void 0 : _b.userId, (_c = req.user) === null || _c === void 0 ? void 0 : _c.role);
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.OK,
         success: true,
@@ -39,8 +39,8 @@ const getAllOrders = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, v
     });
 }));
 const getSingleOrder = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _e, _f;
-    const result = yield orders_service_1.OrdersService.getSingleOrder(req.params.orderId, (_e = req.user) === null || _e === void 0 ? void 0 : _e.userId, (_f = req.user) === null || _f === void 0 ? void 0 : _f.role);
+    var _d, _e;
+    const result = yield orders_service_1.OrdersService.getSingleOrder(req.params.orderId, (_d = req.user) === null || _d === void 0 ? void 0 : _d.userId, (_e = req.user) === null || _e === void 0 ? void 0 : _e.role);
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.OK,
         success: true,

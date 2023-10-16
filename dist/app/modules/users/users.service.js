@@ -28,14 +28,14 @@ const http_status_1 = __importDefault(require("http-status"));
 const config_1 = __importDefault(require("../../../config"));
 const ApiError_1 = __importDefault(require("../../../errors/ApiError"));
 const prisma_1 = __importDefault(require("../../../shared/prisma"));
+const client_1 = require("@prisma/client");
 const jwtHelpers_1 = require("../../../helpers/jwtHelpers");
+const bcrypt_1 = __importDefault(require("bcrypt"));
 const createUser = (payload) => __awaiter(void 0, void 0, void 0, function* () {
-    // payload.password = await bcrypt.hash(
-    //   payload.password,
-    //   Number(config.bcrypt_salt_rounds)
-    // )
+    payload.password = yield bcrypt_1.default.hash(payload.password, Number(config_1.default.bcrypt_salt_rounds));
+    const data = Object.assign(Object.assign({}, payload), { role: client_1.UserRole.user });
     const result = yield prisma_1.default.user.create({
-        data: payload,
+        data,
     });
     // eslint-disable-next-line no-unused-vars
     const { password } = result, others = __rest(result, ["password"]);
@@ -52,14 +52,14 @@ const userLogin = (payload) => __awaiter(void 0, void 0, void 0, function* () {
         throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, 'User does not exist');
     }
     if (isUserExist.email) {
-        if (isUserExist.password !== password) {
+        const isPasswordMatched = yield bcrypt_1.default.compare(password, isUserExist === null || isUserExist === void 0 ? void 0 : isUserExist.password);
+        if (!isPasswordMatched) {
             throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, 'Password is incorrect');
         }
     }
     const { id, email, role } = isUserExist;
-    const iat = Math.floor(Date.now() / 1000);
-    const accessToken = jwtHelpers_1.jwtHelpers.createToken({ userId: id, role, iat }, config_1.default.jwt.jwt_secret, config_1.default.jwt.jwt_expires_in);
-    const refreshToken = jwtHelpers_1.jwtHelpers.createToken({ userId: id, role, iat }, config_1.default.jwt.jwt_refresh_secret, config_1.default.jwt.jwt_refresh_expires_in);
+    const accessToken = jwtHelpers_1.jwtHelpers.createToken({ userId: id, role, email }, config_1.default.jwt.jwt_secret, config_1.default.jwt.jwt_expires_in);
+    const refreshToken = jwtHelpers_1.jwtHelpers.createToken({ userId: id, role, email }, config_1.default.jwt.jwt_refresh_secret, config_1.default.jwt.jwt_refresh_expires_in);
     return {
         accessToken,
         refreshToken,
@@ -80,13 +80,33 @@ const userRefreshToken = (token) => __awaiter(void 0, void 0, void 0, function* 
     if (!isUserExist) {
         throw new ApiError_1.default(404, 'User does not exist');
     }
-    const { id: userId, role } = isUserExist;
-    const newAccessToken = jwtHelpers_1.jwtHelpers.createToken({ userId, role }, config_1.default.jwt.jwt_secret, config_1.default.jwt.jwt_expires_in);
+    const { id: userId, role, email } = isUserExist;
+    const newAccessToken = jwtHelpers_1.jwtHelpers.createToken({ userId, role, email }, config_1.default.jwt.jwt_secret, config_1.default.jwt.jwt_expires_in);
     return {
         accessToken: newAccessToken,
     };
 });
-const getAllUsers = () => __awaiter(void 0, void 0, void 0, function* () {
+const getAllUsers = (userInfo) => __awaiter(void 0, void 0, void 0, function* () {
+    const { role } = userInfo;
+    if (role === client_1.UserRole.admin) {
+        const result = yield prisma_1.default.user.findMany({
+            where: {
+                NOT: {
+                    role: client_1.UserRole.super_admin
+                }
+            },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                role: true,
+                contactNo: true,
+                address: true,
+                district: true,
+            },
+        });
+        return result;
+    }
     const result = yield prisma_1.default.user.findMany({
         select: {
             id: true,
@@ -95,12 +115,17 @@ const getAllUsers = () => __awaiter(void 0, void 0, void 0, function* () {
             role: true,
             contactNo: true,
             address: true,
-            profileImg: true,
+            district: true,
         },
     });
     return result;
 });
-const getUser = (id) => __awaiter(void 0, void 0, void 0, function* () {
+const getUser = (id, userId, role) => __awaiter(void 0, void 0, void 0, function* () {
+    if (role === client_1.UserRole.user) {
+        if (id !== userId) {
+            throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, "You are not authorized!");
+        }
+    }
     const result = yield prisma_1.default.user.findUnique({
         where: {
             id,
@@ -112,17 +137,32 @@ const getUser = (id) => __awaiter(void 0, void 0, void 0, function* () {
             role: true,
             contactNo: true,
             address: true,
-            profileImg: true,
+            district: true
         },
     });
+    if (role === client_1.UserRole.admin) {
+        if ((result === null || result === void 0 ? void 0 : result.role) === client_1.UserRole.super_admin) {
+            throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, "You are not authorized!");
+        }
+    }
     return result;
 });
-const updateUser = (id, payload) => __awaiter(void 0, void 0, void 0, function* () {
+const updateUser = (id, userId, role, payload) => __awaiter(void 0, void 0, void 0, function* () {
     const isExist = yield prisma_1.default.user.findUnique({
         where: { id },
     });
     if (!isExist) {
         throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, "User didn't found!");
+    }
+    if (role === client_1.UserRole.user) {
+        if (userId !== id) {
+            throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, "Not Authorized");
+        }
+    }
+    if (role === client_1.UserRole.admin) {
+        if (isExist.role === client_1.UserRole.super_admin) {
+            throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, "Not Authorized");
+        }
     }
     const result = yield prisma_1.default.user.update({
         where: {
@@ -136,7 +176,7 @@ const updateUser = (id, payload) => __awaiter(void 0, void 0, void 0, function* 
             role: true,
             contactNo: true,
             address: true,
-            profileImg: true,
+            district: true
         },
     });
     return result;
@@ -153,7 +193,7 @@ const deleteUser = (id) => __awaiter(void 0, void 0, void 0, function* () {
             role: true,
             contactNo: true,
             address: true,
-            profileImg: true,
+            district: true
         },
     });
     return result;
@@ -177,5 +217,5 @@ exports.UserService = {
     getUser,
     updateUser,
     deleteUser,
-    getProfile
+    getProfile,
 };

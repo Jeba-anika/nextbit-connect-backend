@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const handleClientError = (error) => {
     var _a;
+    console.log("from client error", error.message);
     let errors = [];
     let message = "";
     const statusCode = 400;
@@ -22,6 +23,22 @@ const handleClientError = (error) => {
                     message
                 }];
         }
+        else {
+            message = error.message;
+            errors = [{
+                    path: '',
+                    message
+                }];
+        }
+    }
+    else if (error.code === 'P2002') {
+        message = (error === null || error === void 0 ? void 0 : error.message) || "Unique constraint error";
+        errors = [
+            {
+                path: '',
+                message
+            }
+        ];
     }
     return {
         statusCode,

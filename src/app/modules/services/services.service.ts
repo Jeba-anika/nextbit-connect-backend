@@ -189,7 +189,7 @@ const deleteService = async (id: string) => {
   return result
 }
 const giveReviewRating = async (payload: ReviewAndRating) => {
-  let result = {}
+  let result = {} as ReviewAndRating
   await prisma.$transaction(async transactionClient => {
     result = await transactionClient.reviewAndRating.create({
       data: payload,

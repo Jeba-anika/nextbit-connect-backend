@@ -16,21 +16,19 @@ exports.OrdersService = void 0;
 const prisma_1 = __importDefault(require("../../../shared/prisma"));
 const ApiError_1 = __importDefault(require("../../../errors/ApiError"));
 const http_status_1 = __importDefault(require("http-status"));
+const client_1 = require("@prisma/client");
 const createOrder = (payload, userId) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield prisma_1.default.order.create({
-        data: {
-            userId,
-            orderedBooks: payload,
-        },
+        data: Object.assign(Object.assign({}, payload), { userId })
     });
     return result;
 });
 const getAllOrders = (userId, role) => __awaiter(void 0, void 0, void 0, function* () {
     let result = [];
-    if (role === 'admin') {
+    if (role === client_1.UserRole.admin || role === client_1.UserRole.super_admin) {
         result = yield prisma_1.default.order.findMany({});
     }
-    else if (role === 'customer') {
+    else if (role === client_1.UserRole.user) {
         result = yield prisma_1.default.order.findMany({
             where: {
                 userId,
@@ -48,7 +46,7 @@ const getSingleOrder = (orderId, userId, role) => __awaiter(void 0, void 0, void
     if (!result) {
         throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, 'Order does not exist!');
     }
-    if (role === 'customer') {
+    if (role === client_1.UserRole.user) {
         if ((result === null || result === void 0 ? void 0 : result.userId) !== userId) {
             throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, 'Unauthorized access');
         }
