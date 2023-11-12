@@ -26,6 +26,10 @@ const getAllOrders = async (userId: string, role: string): Promise<Order[]> => {
       where: {
         userId,
       },
+      include:{
+        user: true,
+        service: true
+      }
     })
   }
   return result
