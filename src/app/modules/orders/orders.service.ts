@@ -20,7 +20,12 @@ const createOrder = async (
 const getAllOrders = async (userId: string, role: string): Promise<Order[]> => {
   let result: Order[] = []
   if (role === UserRole.admin || role === UserRole.super_admin) {
-    result = await prisma.order.findMany({})
+    result = await prisma.order.findMany({
+      include:{
+        user: true,
+        service: true
+      }
+    })
   } else if (role === UserRole.user) {
     result = await prisma.order.findMany({
       where: {
