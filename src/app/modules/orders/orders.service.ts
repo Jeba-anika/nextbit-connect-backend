@@ -40,6 +40,10 @@ const getSingleOrder = async (
     where: {
       id: orderId,
     },
+    include:{
+      user: true,
+      service: true
+    }
   })
   if (!result) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Order does not exist!')

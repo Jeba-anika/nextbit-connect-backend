@@ -8,7 +8,7 @@ import router from './app/routes'
 
 const app: Application = express()
 const corsOptions = {
-  origin: ['https://nextbit-connect-frontend.vercel.app', 'http://localhost:3000/'], // Replace with your frontend URL
+  origin: ['https://nextbit-connect-frontend.vercel.app', 'http://localhost:3000'], // Replace with your frontend URL
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true,
   optionsSuccessStatus: 204, // Some legacy browsers (IE11, various SmartTVs) choke on 204
